@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kesava Sai Krishna Kondepudi — AI Engineer</title>
+<meta name="description" content="AI engineer building production LLM systems — enterprise RAG, multi-agent orchestration, geospatial intelligence. Published in IEEE ICPEEV and the Journal of Prediction Markets. MS Data Science @ CU Boulder, Fall 2026.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F3F5F8;
+    --ink: #101B2D;
+    --muted: #56677D;
+    --cobalt: #1F4FE0;
+    --amber: #D98A1F;
+    --line: #D5DDE7;
+    --card: #FFFFFF;
+    --maxw: 1080px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--cobalt); color: #fff; }
+
+  a { color: var(--cobalt); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--cobalt);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  .mono {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .wrap {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  /* ---------- Nav ---------- */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 58px;
+  }
+  .nav-name {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+  }
+  .nav-links { display: flex; gap: 26px; }
+  .nav-links a { color: var(--muted); }
+  .nav-links a:hover { color: var(--cobalt); text-decoration: none; }
+
+  /* ---------- Hero ---------- */
+  header {
+    padding: 96px 0 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-eyebrow {
+    color: var(--cobalt);
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-eyebrow::before {
+    content: "";
+    width: 34px;
+    height: 2px;
+    background: var(--cobalt);
+    display: inline-block;
+  }
+  h1 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(44px, 8vw, 88px);
+    line-height: 0.98;
+    letter-spacing: -0.015em;
+    text-transform: uppercase;
+    max-width: 900px;
+  }
+  h1 .accent { color: var(--cobalt); }
+  .hero-sub {
+    margin-top: 28px;
+    font-size: clamp(18px, 2.2vw, 21px);
+    max-width: 680px;
+    color: var(--muted);
+  }
+  .hero-sub strong { color: var(--ink); font-weight: 600; }
+
+  /* Signature: SCG → ECG waveform */
+  .signal-band {
+    margin-top: 70px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background:
+      repeating-linear-gradient(to right, transparent 0 39px, var(--line) 39px 40px),
+      repeating-linear-gradient(to bottom, transparent 0 39px, var(--line) 39px 40px);
+    background-color: var(--card);
+    position: relative;
+  }
+  .signal-band svg { display: block; width: 100%; height: 160px; }
+  .signal-label {
+    position: absolute;
+    color: var(--muted);
+    bottom: 10px;
+    background: var(--card);
+    padding: 2px 8px;
+    border: 1px solid var(--line);
+  }
+  .signal-label.left  { left: 28px; }
+  .signal-label.right { right: 28px; color: var(--cobalt); border-color: var(--cobalt); }
+
+  #trace {
+    fill: none;
+    stroke: var(--cobalt);
+    stroke-width: 2.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    #trace {
+      stroke-dasharray: 3200;
+      stroke-dashoffset: 3200;
+      animation: draw 3.2s cubic-bezier(0.4, 0, 0.2, 1) 0.4s forwards;
+    }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+  }
+
+  /* ---------- Sections ---------- */
+  section { padding: 88px 0 0; }
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    margin-bottom: 40px;
+  }
+  .sec-head .mono { color: var(--cobalt); }
+  h2 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(26px, 4vw, 38px);
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+  }
+  .sec-intro { max-width: 640px; color: var(--muted); margin-bottom: 40px; margin-top: -20px; }
+  .sec-intro strong { color: var(--ink); font-weight: 600; }
+  .role-line { color: var(--muted); margin-top: -20px; margin-bottom: 22px; }
+  .role-line + .sec-intro { margin-top: 0; }
+
+  /* Work cards */
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+  .card {
+    background: var(--card);
+    padding: 30px 26px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .card h3 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 18px;
+    line-height: 1.25;
+  }
+  .card .metric {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    color: var(--amber);
+  }
+  .card p { font-size: 15.5px; color: var(--muted); flex: 1; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    padding: 3px 8px;
+    background: var(--paper);
+  }
+
+  .also {
+    margin-top: 40px;
+    border: 1px solid var(--line);
+    background: var(--card);
+  }
+  .also-head {
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+  }
+  .also-item {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 20px;
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--line);
+    font-size: 15px;
+  }
+  .also-item:last-child { border-bottom: none; }
+  .also-item .name { font-weight: 600; }
+  .also-item .desc { color: var(--muted); }
+
+  /* Publications */
+  .pub {
+    border-top: 1px solid var(--line);
+    padding: 28px 0;
+    display: grid;
+    grid-template-columns: 150px 1fr auto;
+    gap: 24px;
+    align-items: baseline;
+  }
+  .pub:last-of-type { border-bottom: 1px solid var(--line); }
+  .pub .mono { color: var(--muted); }
+  .pub h3 { font-family: 'Source Serif 4', serif; font-weight: 600; font-size: 19px; line-height: 1.4; }
+  .pub p { color: var(--muted); font-size: 15.5px; margin-top: 6px; }
+  .pub p em { font-style: italic; }
+  .pub-link { white-space: nowrap; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; }
+
+  /* Projects strip */
+  .proj-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .proj {
+    border-left: 2px solid var(--cobalt);
+    padding-left: 20px;
+  }
+  .proj h3 { font-family: 'Source Serif 4', serif; font-weight: 600; font-size: 17px; margin-bottom: 6px; }
+  .proj p { font-size: 14.5px; color: var(--muted); }
+  .proj .mono { color: var(--muted); display: block; margin-bottom: 8px; }
+  .proj-link { display: inline-block; margin-top: 12px; font-size: 12px; }
+
+  /* Next */
+  .next-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: start; }
+  .next-grid p + p { margin-top: 16px; }
+  .next-grid strong { font-weight: 600; }
+  .focus-list { border: 1px solid var(--line); background: var(--card); }
+  .focus-item {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+  }
+  .focus-item:last-child { border-bottom: none; }
+  .focus-item .mono { color: var(--amber); min-width: 52px; }
+  .focus-item span:last-child { font-size: 15.5px; }
+
+  /* Contact */
+  .contact-band {
+    margin-top: 96px;
+    background: var(--ink);
+    color: #E8EDF4;
+    padding: 80px 0 72px;
+  }
+  .contact-band h2 { color: #fff; }
+  .contact-band .sec-head .mono { color: var(--amber); }
+  .contact-band p { max-width: 560px; color: #A9B6C7; }
+  .contact-links { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
+  .contact-links a {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    color: #fff;
+    border: 1px solid #3A4A5F;
+    padding: 12px 20px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .contact-links a:hover { border-color: var(--cobalt); background: var(--cobalt); text-decoration: none; }
+
+  footer {
+    background: var(--ink);
+    color: #5F7089;
+    padding: 0 0 36px;
+  }
+  .footer-inner {
+    border-top: 1px solid #26354A;
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 860px) {
+    .cards { grid-template-columns: 1fr; }
+    .pub { grid-template-columns: 1fr; gap: 8px; }
+    .next-grid { grid-template-columns: 1fr; }
+    .proj-grid { grid-template-columns: 1fr; }
+    .also-item { grid-template-columns: 1fr; gap: 4px; }
+    .nav-links { gap: 16px; }
+    .nav-links a:nth-child(n+4) { display: none; }
+    header { padding-top: 64px; }
+    section { padding-top: 64px; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="top">
+  <div class="wrap nav-inner">
+    <a href="#top" class="nav-name">KESAVA<span style="color:var(--cobalt)">.</span></a>
+    <div class="nav-links mono">
+      <a href="#work">Work</a>
+      <a href="#research">Research</a>
+      <a href="#projects">Projects</a>
+      <a href="#next">Next</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap">
+    <p class="hero-eyebrow mono">AI Engineer · Hyderabad → Boulder</p>
+    <h1>Noisy signals in.<br><span class="accent">Working systems</span> out.</h1>
+    <p class="hero-sub">
+      I'm <strong>Kesava Sai Krishna Kondepudi</strong> — an AI engineer with
+      two peer-reviewed publications who spent two years building production LLM
+      systems at Bilvantis Technologies: enterprise RAG platforms, multi-agent
+      workflows, and geospatial intelligence used by 90+ users across 25+ clients.
+      I care about AI that stays reliable when the real world drifts from the
+      training data. Starting an MS in Data Science at CU Boulder, Fall 2026.
+    </p>
+  </div>
+
+  <div class="signal-band" aria-hidden="true">
+    <svg viewBox="0 0 1200 160" preserveAspectRatio="none">
+      <!-- Left half: noisy seismocardiogram → Right half: clean ECG (PQRST) -->
+      <path id="trace" d="
+        M 0 82
+        L 12 78 L 20 88 L 28 74 L 36 90 L 44 70 L 52 94 L 60 66 L 68 96
+        L 76 72 L 84 88 L 92 62 L 100 100 L 108 68 L 116 92 L 124 58 L 132 104
+        L 140 66 L 148 94 L 156 60 L 164 100 L 172 70 L 180 90 L 188 64 L 196 98
+        L 204 74 L 212 86 L 220 68 L 228 94 L 236 72 L 244 88 L 252 70 L 260 92
+        L 268 76 L 276 86 L 284 74 L 292 88 L 300 78 L 310 84 L 320 78 L 330 86
+        L 340 80 L 352 84 L 364 80 L 378 84 L 392 81 L 410 83 L 430 82 L 460 82
+        L 500 82
+        L 530 82 Q 540 72 550 82 L 566 82 L 572 90 L 580 20 L 588 108 L 596 82
+        L 614 82 Q 628 62 642 82
+        L 700 82
+        L 730 82 Q 740 72 750 82 L 766 82 L 772 90 L 780 20 L 788 108 L 796 82
+        L 814 82 Q 828 62 842 82
+        L 900 82
+        L 930 82 Q 940 72 950 82 L 966 82 L 972 90 L 980 20 L 988 108 L 996 82
+        L 1014 82 Q 1028 62 1042 82
+        L 1200 82" />
+    </svg>
+    <span class="signal-label mono left">Input · Seismocardiogram (noisy)</span>
+    <span class="signal-label mono right">Output · ECG · 96.55% fidelity</span>
+  </div>
+</header>
+
+<section id="work">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="mono">Signal 01</span>
+      <h2>Production Systems</h2>
+    </div>
+    <p class="role-line mono">Bilvantis Technologies · Hyderabad · AI Engineer · Mar 2024 – Jun 2026</p>
+    <p class="sec-intro">
+      At Bilvantis I shipped LLM systems that enterprises depend on — where retries,
+      tenancy, cost, and <strong>distribution shift</strong> matter as much as model quality.
+    </p>
+    <div class="cards">
+      <div class="card">
+        <h3>Tiggo — Location Intelligence</h3>
+        <span class="metric">90+ users · −60% review time</span>
+        <p>
+          Architected an end-to-end site feasibility platform fusing Google Maps,
+          environmental, traffic, and demographic data into automated revenue
+          projections — with fault-tolerant, Temporal-orchestrated ETL across 10+
+          heterogeneous APIs. Its RFP intelligence module automates document
+          parsing and relevance scoring for 90+ enterprise users.
+        </p>
+        <div class="tags">
+          <span class="tag">Temporal</span><span class="tag">Geospatial</span><span class="tag">GCP</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>RADEX — Multi-Tenant RAG</h3>
+        <span class="metric">Hybrid retrieval · Text-to-SQL</span>
+        <p>
+          A conversational AI platform serving context-aware answers across
+          unstructured documents and structured databases, built on partitioned
+          Milvus vector stores with tenant isolation. Diagnosed and fixed
+          production failures caused by distribution shift in client query
+          patterns — the problem that shaped my research interests.
+        </p>
+        <div class="tags">
+          <span class="tag">RAG</span><span class="tag">Milvus</span><span class="tag">Multi-Tenant</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>P2X — Legacy Migration</h3>
+        <span class="metric">25+ clients · −70% migration time</span>
+        <p>
+          An enterprise data migration platform using LLM-based code analysis and
+          automated SQL generation (95% accuracy) to move legacy Informatica
+          PowerCenter workflows to modern cloud databases — cutting migration
+          time by 70% and infrastructure costs by 60%.
+        </p>
+        <div class="tags">
+          <span class="tag">LLM Codegen</span><span class="tag">SQL</span><span class="tag">Cloud</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="also">
+      <div class="also-head mono">Also shipped</div>
+      <div class="also-item">
+        <span class="name">LLM Test Automation</span>
+        <span class="desc">Reads Jira/ClickUp tickets and generates pytest suites, integration tests, and Postman collections — cutting manual QA effort by 50%.</span>
+      </div>
+      <div class="also-item">
+        <span class="name">Multi-Agent BI Reports</span>
+        <span class="desc">A master agent orchestrating specialist agents across sales databases, knowledge bases, and web search into interactive visualizations.</span>
+      </div>
+      <div class="also-item">
+        <span class="name">Multilingual Audio Pipeline</span>
+        <span class="desc">Whisper + AssemblyAI transcription, translation, speaker diarization, and automated Q&amp;A over a knowledge base.</span>
+      </div>
+      <div class="also-item">
+        <span class="name">Git Secret Scanner</span>
+        <span class="desc">A security tool for an AI software-engineering assistant that scans diffs for exposed secrets and surfaces them for developer review.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="research">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="mono">Signal 02</span>
+      <h2>Published Research</h2>
+    </div>
+    <div class="pub">
+      <span class="mono">IEEE ICPEEV · 2023</span>
+      <div>
+        <h3>A Deep Learning Based Approach for Cardiovascular Monitoring Using Seismocardiogram Signals</h3>
+        <p>
+          A CycleGAN that translates non-invasive chest-vibration (SCG) signals into
+          medical-grade ECG — 89% reconstruction fidelity in the published work, later
+          improved to 96.55% with a 4-discriminator, 2-generator CGAN. <em>This paper is
+          the waveform drawn above.</em> Presented at ICPEEV 2023, Hyderabad.
+        </p>
+      </div>
+      <a class="pub-link" href="https://doi.org/10.1109/ICPEEV58650.2023.10391941" target="_blank" rel="noopener">DOI ↗</a>
+    </div>
+    <div class="pub">
+      <span class="mono">J. Prediction Markets · 2024</span>
+      <div>
+        <h3>Forecasting ASEAN-5 Stock Index Price Movement Using Machine Learning Techniques</h3>
+        <p>
+          Benchmarked 8 ML algorithms over 11 years of Southeast Asian market data
+          (2,880 trading days) with TSFresh-engineered features — AdaBoost led on AUC,
+          F1, and precision. Presented at the 9th Pan-IIM World Management Conference,
+          IIM Sambalpur.
+        </p>
+      </div>
+      <a class="pub-link" href="https://doi.org/10.5750/jpm.v18i1.2119" target="_blank" rel="noopener">DOI ↗</a>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="mono">Signal 03</span>
+      <h2>Independent Projects</h2>
+    </div>
+    <div class="proj-grid">
+      <div class="proj">
+        <span class="mono">2025 – Ongoing</span>
+        <h3>Reflective AI Memory System</h3>
+        <p>A memory-augmented agent (Gemini + FAISS) with cross-session recall and semantic memory segmentation — working toward self-modeling for autonomous learning.</p>
+        <a class="proj-link mono" href="https://github.com/kesavakrishna/reflective_ai" target="_blank" rel="noopener">Repo ↗</a>
+      </div>
+      <div class="proj">
+        <span class="mono">2025</span>
+        <h3>Corporate Risk Assessment</h3>
+        <p>An AutoGen multi-agent system that analyzes financial indicators and scrapes news to generate ERM-aligned risk matrices with mitigation strategies.</p>
+        <a class="proj-link mono" href="https://github.com/kesavakrishna/risk_analysis" target="_blank" rel="noopener">Repo ↗</a>
+      </div>
+      <div class="proj">
+        <span class="mono">2025</span>
+        <h3>Crypto Analysis Engine</h3>
+        <p>A dual-LLM system fusing technical analysis on Coinbase price feeds with news sentiment into structured investment analysis and forecasts.</p>
+        <a class="proj-link mono" href="https://github.com/kesavakrishna/buy_sell_pred" target="_blank" rel="noopener">Repo ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="next">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="mono">Signal 04</span>
+      <h2>What's Next</h2>
+    </div>
+    <div class="next-grid">
+      <div>
+        <p>
+          In Fall 2026 I'm moving from Hyderabad to Boulder for a full-time
+          <strong>MS in Data Science at the University of Colorado Boulder</strong> —
+          deliberately trading tooling fluency for theoretical depth.
+        </p>
+        <p>
+          The goal is research engineering: bringing production-grade reliability
+          instincts to machine learning research. I've watched systems fail under
+          distribution shift in the wild; I want to understand why, make models
+          more legible, and build AI that's worthy of the trust we place in it.
+        </p>
+      </div>
+      <div class="focus-list">
+        <div class="focus-item"><span class="mono">Focus</span><span>Reliability under distribution shift</span></div>
+        <div class="focus-item"><span class="mono">Focus</span><span>Mechanistic interpretability</span></div>
+        <div class="focus-item"><span class="mono">Focus</span><span>Time series &amp; forecasting</span></div>
+        <div class="focus-item"><span class="mono">Focus</span><span>Geospatial AI</span></div>
+        <div class="focus-item"><span class="mono">Track</span><span>Research engineering</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="contact-band" id="contact">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="mono">Signal 05</span>
+      <h2>Get in Touch</h2>
+    </div>
+    <p>
+      Open to conversations about production LLM systems, research collaborations,
+      and opportunities around Boulder/Denver from Fall 2026.
+    </p>
+    <div class="contact-links">
+      <a href="mailto:kesavakrishna91@gmail.com">✉ kesavakrishna91@gmail.com</a>
+      <a href="https://github.com/kesavakrishna" target="_blank" rel="noopener">GitHub ↗</a>
+      <a href="https://www.linkedin.com/in/kesava-krishna/" target="_blank" rel="noopener">LinkedIn ↗</a>
+      <a href="resume.pdf" target="_blank" rel="noopener">Résumé (PDF) ↗</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap footer-inner">
+    <span>© 2026 Kesava Sai Krishna Kondepudi</span>
+    <span>Hyderabad → Boulder</span>
+  </div>
+</footer>
+
+</body>
+</html>
