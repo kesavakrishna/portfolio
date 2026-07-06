@@ -318,8 +318,8 @@
     .next-grid { grid-template-columns: 1fr; }
     .proj-grid { grid-template-columns: 1fr; }
     .also-item { grid-template-columns: 1fr; gap: 4px; }
-    .nav-links { gap: 16px; }
-    .nav-links a:nth-child(n+4) { display: none; }
+    .nav-links { gap: 12px; font-size: 11px; }
+    .nav-links a:nth-child(4), .nav-links a:nth-child(5) { display: none; }
     header { padding-top: 64px; }
     section { padding-top: 64px; }
   }
@@ -333,6 +333,7 @@
     <div class="nav-links mono">
       <a href="#work">Work</a>
       <a href="#research">Research</a>
+      <a href="#notes">Notes</a>
       <a href="#projects">Projects</a>
       <a href="#next">Next</a>
       <a href="#contact">Contact</a>
@@ -493,10 +494,34 @@
   </div>
 </section>
 
-<section id="projects">
+<section id="notes">
   <div class="wrap">
     <div class="sec-head">
       <span class="mono">Signal 03</span>
+      <h2>Notes</h2>
+    </div>
+    <p class="sec-intro">
+      Writing about what production systems taught me — long-form, occasional, specific.
+    </p>
+    <div class="pub">
+      <span class="mono">Post-mortem · Jul 2026</span>
+      <div>
+        <h3>What Distribution Shift Looks Like in a Production RAG System</h3>
+        <p>
+          The RADEX story: how a multi-tenant RAG platform got worse while every
+          dashboard stayed green — what silent failure looks like, how we found
+          it, and why it set my research direction. ≈6 min read.
+        </p>
+      </div>
+      <a class="pub-link" href="distribution-shift.html">Read ↗</a>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="mono">Signal 04</span>
       <h2>Independent Projects</h2>
     </div>
     <div class="proj-grid">
@@ -514,8 +539,8 @@
       </div>
       <div class="proj">
         <span class="mono">2025</span>
-        <h3>Crypto Analysis Engine</h3>
-        <p>A dual-LLM system fusing technical analysis on Coinbase price feeds with news sentiment into structured investment analysis and forecasts.</p>
+        <h3>Crypto Sentiment Backtester</h3>
+        <p>A backtesting engine that tests whether the crypto Fear &amp; Greed Index works as a contrarian Bitcoin indicator — automated data pipeline, signal generation, and documented findings: the sentiment strategy returned +0.11% over a window where buy-and-hold lost 9.36%.</p>
         <a class="proj-link mono" href="https://github.com/kesavakrishna/buy_sell_pred" target="_blank" rel="noopener">Repo ↗</a>
       </div>
     </div>
@@ -525,7 +550,7 @@
 <section id="next">
   <div class="wrap">
     <div class="sec-head">
-      <span class="mono">Signal 04</span>
+      <span class="mono">Signal 05</span>
       <h2>What's Next</h2>
     </div>
     <div class="next-grid">
@@ -533,7 +558,9 @@
         <p>
           In Fall 2026 I'm moving from Hyderabad to Boulder for a full-time
           <strong>MS in Data Science at the University of Colorado Boulder</strong> —
-          deliberately trading tooling fluency for theoretical depth.
+          deliberately trading tooling fluency for theoretical depth. It builds
+          on a B.Tech in Electronics and Computer Engineering from Mahindra
+          University, Hyderabad (2020–2024).
         </p>
         <p>
           The goal is research engineering: bringing production-grade reliability
@@ -556,12 +583,14 @@
 <div class="contact-band" id="contact">
   <div class="wrap">
     <div class="sec-head">
-      <span class="mono">Signal 05</span>
+      <span class="mono">Signal 06</span>
       <h2>Get in Touch</h2>
     </div>
     <p>
-      Open to conversations about production LLM systems, research collaborations,
-      and opportunities around Boulder/Denver from Fall 2026.
+      Open to conversations about production LLM systems and research
+      collaborations. From Fall 2026 I'll be at CU Boulder — and actively
+      looking for research assistantships in reliability, interpretability,
+      and time-series ML.
     </p>
     <div class="contact-links">
       <a href="mailto:kesavakrishna91@gmail.com">✉ kesavakrishna91@gmail.com</a>

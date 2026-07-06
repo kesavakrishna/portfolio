@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Distribution Shift Looks Like in a Production RAG System — Kesava Kondepudi</title>
+<meta name="description" content="A post-mortem from RADEX, a multi-tenant enterprise RAG platform: how answer quality degraded without a single error in the logs, how we diagnosed drift in client query patterns, and what it taught me about reliability.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F3F5F8;
+    --ink: #101B2D;
+    --muted: #56677D;
+    --cobalt: #1F4FE0;
+    --amber: #D98A1F;
+    --line: #D5DDE7;
+    --card: #FFFFFF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 17.5px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--cobalt); color: #fff; }
+
+  a { color: var(--cobalt); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  a:focus-visible {
+    outline: 2px solid var(--cobalt);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  .mono {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 58px;
+  }
+  .nav-name {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+  }
+  .nav-links { display: flex; gap: 26px; }
+  .nav-links a { color: var(--muted); }
+  .nav-links a:hover { color: var(--cobalt); text-decoration: none; }
+
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  article { padding: 80px 0 40px; }
+
+  .eyebrow {
+    color: var(--cobalt);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 34px;
+    height: 2px;
+    background: var(--cobalt);
+    display: inline-block;
+  }
+
+  h1 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(28px, 5vw, 42px);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+  }
+
+  .meta { color: var(--muted); margin: 20px 0 0; }
+
+  .lede {
+    margin-top: 36px;
+    font-size: 19px;
+    color: var(--muted);
+  }
+  .lede strong { color: var(--ink); font-weight: 600; }
+
+  article h2 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 19px;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    margin: 52px 0 18px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  article h2 .hn { color: var(--cobalt); font-weight: 400; }
+
+  article p { margin-bottom: 22px; }
+  article p strong { font-weight: 600; }
+
+  article ul { margin: 0 0 22px; padding-left: 24px; }
+  article li { margin-bottom: 12px; }
+  article li::marker { color: var(--cobalt); }
+  article li strong { font-weight: 600; }
+
+  .callout {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--amber);
+    background: var(--card);
+    padding: 18px 24px;
+    margin: 30px 0;
+    font-size: 18.5px;
+    font-style: italic;
+  }
+
+  .endnote {
+    margin-top: 48px;
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+    color: var(--muted);
+    font-size: 15.5px;
+  }
+
+  footer {
+    border-top: 1px solid var(--line);
+    margin-top: 40px;
+    padding: 24px 0 36px;
+  }
+  .footer-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 28px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  @media (max-width: 860px) {
+    article { padding-top: 56px; }
+    .nav-links { gap: 14px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-name">KESAVA<span style="color:var(--cobalt)">.</span></a>
+    <div class="nav-links mono">
+      <a href="index.html#work">Work</a>
+      <a href="index.html#notes">Notes</a>
+      <a href="index.html#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<article>
+  <div class="wrap">
+    <p class="eyebrow mono">Notes · 01 — Post-mortem</p>
+    <h1>What distribution shift looks like in a production RAG system</h1>
+    <p class="meta mono">July 2026 · ≈6 min · RADEX, Bilvantis Technologies</p>
+
+    <p class="lede">
+      One of the systems I built at Bilvantis was <strong>RADEX</strong>, a
+      multi-tenant conversational AI platform: enterprise clients connect their
+      document stores and databases, and their teams ask questions in plain
+      language. Under the hood — partitioned Milvus vector stores with tenant
+      isolation, hybrid retrieval over unstructured documents, and a text-to-SQL
+      agent for the structured side. At launch it worked. Evaluations looked
+      strong, pilot clients were happy, the demo rarely missed.
+    </p>
+    <p>
+      Then, over the months that followed, it got worse — slowly, unevenly, and
+      without a single error in the logs. This is a post-mortem of that
+      degradation: what silent failure looks like in a RAG system, how we found
+      it, and why it changed what I want to work on.
+    </p>
+
+    <h2><span class="hn mono">01</span>Nothing crashed</h2>
+    <p>
+      The first thing to understand about RAG failures is that the
+      infrastructure has no opinion about quality. Vector search always returns
+      the top-k nearest neighbors — but <em>nearest</em> is not
+      <em>relevant</em>, and cosine similarity has no threshold at which it
+      admits defeat. The language model then does what language models do:
+      writes a fluent, confident answer from whatever context it was handed.
+      Every component reports success. The answer is simply worse.
+    </p>
+    <p>
+      So the system didn't fail the way software usually fails. Latency was
+      normal. Uptime was fine. Retries, token counts, queue depths — all green.
+      What we had instead was a slow leak of trust: users on certain tenants
+      describing answers as "off" or "generic" — the kind of feedback that
+      arrives through account managers, not alerting systems.
+    </p>
+    <div class="callout">
+      The only metric that was truly failing was one we weren't measuring.
+    </div>
+
+    <h2><span class="hn mono">02</span>Where the shift came from</h2>
+    <p>
+      "Distribution shift" sounds like one thing. In a multi-tenant RAG system
+      it is at least four, and they compound:
+    </p>
+    <ul>
+      <li>
+        <strong>New tenants aren't your pilot tenants.</strong> Every retrieval
+        decision — chunk sizes, hybrid weighting, prompt scaffolding — had been
+        tuned, explicitly or implicitly, against the early clients' documents
+        and the early users' questions. Each new tenant brought new vocabulary,
+        new document formats, a new mix of question types. The system they got
+        was optimized for someone else.
+      </li>
+      <li>
+        <strong>Corpora drift under you.</strong> A knowledge base is not a
+        dataset; it's a stream. Documents added months after launch didn't look
+        like the documents the chunking strategy was designed around, and the
+        embedding space quietly filled with material the original design never
+        saw.
+      </li>
+      <li>
+        <strong>Users adapt.</strong> Early users ask cautious, keyword-shaped
+        questions. Once they trust the system, they ask real ones: compound,
+        conversational, full of internal shorthand. The queries evolve
+        precisely <em>because</em> the system worked at first.
+      </li>
+      <li>
+        <strong>The routing boundary moves.</strong> RADEX answered from
+        documents or from SQL, and a router chose which. As the mix of incoming
+        questions shifted, routing decisions tuned on the old mix began to
+        misfire on the new one — failures that look like retrieval problems but
+        aren't.
+      </li>
+    </ul>
+    <p>
+      The common thread: we had optimized against a snapshot, and production is
+      a stream.
+    </p>
+
+    <!-- REVIEW (owner): sections 03 and 04 are reconstructed from the one-line
+         summary on the homepage ("diagnosed and fixed production failures caused
+         by distribution shift in client query patterns"). Replace the general
+         statements below with what you actually observed and did — a real
+         (anonymized) example query, the specific signal that cracked the
+         diagnosis, the fix that moved the needle — before treating this page
+         as final. It reads fine as-is, but specifics will make it 10x stronger. -->
+
+    <h2><span class="hn mono">03</span>Diagnosing what you can't grep for</h2>
+    <p>
+      There is no stack trace for "the answers got worse." Looking at outputs
+      told us little — a bad answer doesn't say <em>why</em> it's bad. The
+      signal was upstream, in the retrieval layer: how similarity scores
+      distributed per tenant and how those distributions moved over time; how
+      much retrieved sets churned for near-identical queries; how often the
+      router sent questions across the document/SQL boundary.
+    </p>
+    <p>
+      And beneath all the aggregates, the most useful practice was the least
+      glamorous one: reading transcripts. One conversation at a time, tenant by
+      tenant, until the pattern showed itself. The diagnosis, once we could
+      state it plainly, was simple: <strong>the queries the system was receiving
+      no longer looked like the queries it had been tuned and evaluated
+      on</strong> — and they had drifted differently for each tenant.
+    </p>
+
+    <h2><span class="hn mono">04</span>What actually fixed it</h2>
+    <p>
+      The fixes were less dramatic than the diagnosis, and the durable ones were
+      as much process as code:
+    </p>
+    <ul>
+      <li>
+        <strong>Per-tenant evaluation sets</strong>, refreshed from real
+        (anonymized) production queries and run like regression tests — so
+        quality became a number that could go red before a client said
+        anything.
+      </li>
+      <li>
+        <strong>Monitoring the input distribution</strong>, not just system
+        health. If this month's queries don't resemble last month's, that is an
+        alert — even when every service is up.
+      </li>
+      <li>
+        <strong>Treating retrieval quality as a first-class production
+        metric</strong>, with the same seriousness as latency or uptime.
+      </li>
+      <li>
+        <strong>Targeted changes over global re-tuning</strong> — adjusting
+        chunking and routing where the evidence pointed, tenant by tenant,
+        rather than reshuffling the whole system on instinct.
+      </li>
+    </ul>
+    <p>
+      None of this is research-grade novelty — which is partly the point. The
+      engineering discipline that catches distribution shift is ordinary. What's
+      missing, mostly, is the habit of treating deployment as the
+      <em>start</em> of evaluation rather than the end of it.
+    </p>
+
+    <h2><span class="hn mono">05</span>Why this sent me back to school</h2>
+    <p>
+      A benchmark is a photograph; production is weather. The gap between how
+      models evaluate and how they behave months into deployment is, I think,
+      one of the most consequential and understudied parts of the stack. I
+      watched that gap open in a real system with real users — and the tools I
+      had for understanding <em>why</em> behavior changed were embarrassingly
+      blunt: score distributions and transcripts. Statistics and squinting.
+    </p>
+    <p>
+      That's the itch behind my next step. In Fall 2026 I'm starting an MS in
+      Data Science at CU Boulder, aiming at research on reliability under
+      distribution shift and on interpretability — because "the answers got
+      worse" should be a measurable, explainable, attributable event, not a
+      vibe reported by account managers.
+    </p>
+    <p>
+      The waveform on my homepage starts as noise and resolves into a clean
+      signal. The honest version of that story is that in production, the
+      resolving is never finished. The noise always comes back. The systems
+      worth building are the ones that notice.
+    </p>
+
+    <p class="endnote">
+      If you work on reliability, evaluation, or interpretability and want to
+      compare notes — <a href="mailto:kesavakrishna91@gmail.com">kesavakrishna91@gmail.com</a>.
+      More about the systems mentioned here is on the
+      <a href="index.html">homepage</a>.
+    </p>
+  </div>
+</article>
+
+<footer>
+  <div class="footer-inner">
+    <span>© 2026 Kesava Sai Krishna Kondepudi</span>
+    <span><a href="index.html#notes">← All notes</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
